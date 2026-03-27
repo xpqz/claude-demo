@@ -1,0 +1,357 @@
+:Class Stark
+⍝ THIS PROJECT IS NOT FOR PUBLIC USE YET
+⍝ IT HAS NOT YET BEEN THOROUGHLY REVIEWED
+⍝ THIS PROJECT IS IN A BETA PHASE
+
+⍝ Fastify-style HTTP router for Dyalog APL, built on top of Jarvis.
+⍝
+⍝ Usage:
+⍝   ⍝ First define your functions, ListUsers, and GetUser, and CreateUser
+⍝   router←Stark.New ()
+⍝   ⍝ Matrix mode (method path handler options per row):
+⍝   router.Register [
+⍝       'GET'  '/users'       'ListUsers'   ()
+⍝       'GET'  '/users/{id}'  'GetUser'     ()
+⍝       'POST' '/users'       'CreateUser'  opts   ⍝ opts is a namespace with metadata
+⍝   ]
+⍝   ⍝ Namespace vector mode (.method .path .handler, and optionally .spec):
+⍝   router.Register (
+⍝       (method: 'GET'  ⋄ path: '/users'      ⋄ handler: 'ListUsers')
+⍝       (method: 'GET'  ⋄ path: '/users/{id}' ⋄ handler: 'GetUser')
+⍝       (method: 'POST' ⋄ path: '/users'      ⋄ handler: 'CreateUser' ⋄ spec: opts)
+⍝   )
+⍝   router.Start 8080
+
+    :Field Public  Handlers      ⍝ namespace where handler functions live
+    :Field Public  ThreadMode←'' ⍝ DYALOG_JARVIS_THREAD: '' (Jarvis default), 0, 1, 'DEBUG', 'AUTO'
+    :Field Public  Info          ⍝ namespace with title, version, description for OpenAPI info
+    :Field Public  Debug←0       ⍝ 0=all errors trapped, 1=stop on error in dispatch, 2=stop before user handler, 4=Jarvis framework debug, 8=Conga event logging, 16=stop before response, 32=Stark framework debug, 64=stop before routing
+    :Field Public  OnErrorFn←''  ⍝ if set, called as err OnErrorFn req after Fail 500 instead of resignalling; err is a ⎕DMX clone
+    :Field Private _routes       ⍝ vector of route descriptor namespaces
+    :Field Private _jarvis       ⍝ underlying Jarvis instance
+
+    ∇ Make0
+      :Access Public
+      :Implements Constructor
+      Info←(title: 'AStarkAPI' ⋄ version: '1.0.0')
+      Handlers←1(86⌶)'⎕THIS'
+      _routes←0 4⍴''
+      _jarvis←⍬
+      '/openapi.json' Get '_OpenAPIHandler'
+    ∇
+
+    ∇ inst←New args
+      :Access Public Shared
+      inst←⎕NEW ⎕THIS
+      inst.Handlers←1(86⌶)'⎕THIS'
+    ∇
+
+    ⍝ Route registration
+    ⍝ path router.Get 'HandlerName'
+    ⍝ path router.Get ('HandlerName' opts)
+
+    ∇ {r}←path Get rarg
+      :Access Public Instance
+      r←_Register 'GET' path rarg
+    ∇
+
+    ∇ {r}←path Post rarg
+      :Access Public Instance
+      r←_Register 'POST' path rarg
+    ∇
+
+    ∇ {r}←path Put rarg
+      :Access Public Instance
+      r←_Register 'PUT' path rarg
+    ∇
+
+    ∇ {r}←path Delete rarg
+      :Access Public Instance
+      r←_Register 'DELETE' path rarg
+    ∇
+
+    ∇ {r}←path Patch rarg
+      :Access Public Instance
+      r←_Register 'PATCH' path rarg
+    ∇
+
+
+    ∇ {r}←_Register(method path rarg);handler;options;norm;existing
+      :Access Private Instance
+      :If 1≠≡rarg                           ⍝ nested: ('HandlerName' options)
+          (handler options)←rarg
+      :ElseIf ⍕⍛≡rarg
+          handler←rarg                     ⍝ simple string
+          options←()
+      :Else
+        ⎕SIGNAL ⊂('EN' 11)('Message' ('STARK: Right argument to Register must be a string (handler name) or a 2-element vector (handler name, options)'))
+      :EndIf
+      ⍝ Check for duplicate routes: normalize {param} segments so {id} and {user_id} match
+      norm←_NormalizePath path
+      :If 0<≢_routes
+          existing←(_routes[;1]∊⍥⎕C ⊂method)⌿_routes
+          :If 0<≢existing
+              :If (⊂norm)∊_NormalizePath¨existing[;2]
+                  ⎕SIGNAL ⊂('EN' 11)('Message' ('STARK: Duplicate route: ',method,' ',path,' conflicts with an existing registration'))
+              :EndIf
+          :EndIf
+      :EndIf
+      r←(
+        method
+        ,path
+        handler
+        options
+      )
+      _routes⍪←r
+    ∇
+
+    ∇ r←Register routes
+      :Access Public
+      ⍝ Matrix mode:   N×4 matrix of (method path handler spec)
+      ⍝ Namespace mode: vector of namespaces, each with .method .path .handler and optionally .spec
+      :If 2=⍴⍴routes
+        :If _routes[;2]{0≢≢⊃∩/{_NormalizePath¨⍵}¨⍺ ⍵}routes[;2]
+            ⎕SIGNAL ⊂('EN' 11)('Message' ('STARK: Duplicate routes detected'))
+        :EndIf
+        routes[;2]←,¨routes[;2]
+        _routes⍪←4↑[2]routes,()
+      :Else
+        :For ns :In ,routes
+          :If 9=ns.⎕NC'spec'
+              _Register ns.method ns.path (ns.handler ns.spec)
+          :Else
+              _Register ns.method ns.path ns.handler
+          :EndIf
+        :EndFor
+      :EndIf
+      r←_routes
+    ∇
+
+    ⍝ Cover function for 7162⌶ (mangle string into valid APL name)
+    _Mangle←{0(7162⌶)⍵}
+
+    ⍝ Replace {param} segments with a placeholder so structurally identical paths match
+    _NormalizePath←{⍵/⍨~+\∊+/¯1 0⌽¨1 ¯1×↓'{}'∘.=⍵}
+
+    ∇ r←{value}DebugLevel level
+    ⍝ monadic: return 1 if level is within Debug (powers of 2)
+    ⍝ dyadic:  return value unless level is within Debug
+      r←∨/((7⍴2)⊤⊃Debug)∨.∧(7⍴2)⊤level
+      :If 0≠⎕NC'value'
+          r←value/⍨~r
+      :EndIf
+    ∇
+
+    stopIf←{1∊⍵:-⎕TRAP←0 'C' '⎕←''Stopped for debugging... (Press Ctrl-Enter)''' ⋄ shy←0}
+
+    ⍝ pattern pathMatch path → (matched pathParams)
+    pathMatch←{
+        patSplit pathSplit←'/'(≠⊆⊢)¨⍺ ⍵
+        pathSplit≢⍥≢patSplit:0()
+        varMask←'{'=⊃¨patSplit
+        ≢/(⊂~varMask)/¨patSplit pathSplit:0()
+        names←({1↓¯1↓⍵}¨patSplit[⍸varMask])
+        1(()⎕VSET↓⍉↑names(pathSplit[⍸varMask]))
+    }
+
+    ⍝ Route an incoming Jarvis request to the matching handler
+    ∇ result←_Dispatch req;routes;r;matched;pp;m;err
+      :Access Public Instance
+      stopIf DebugLevel 64                          ⍝ stop before routing
+      routes←(_routes[;1] ∊⍥⎕C ⊂req.Method)⌿_routes
+      :If 0=≢routes
+          req.Fail 404
+          result←(
+            detail: 'Not Found'
+          )
+          :Return
+      :EndIf
+      m pp←{(⊃⍵) (⍵⊃⍛/2⊃⍵)}↓⍉↑routes[;2] pathMatch¨⊂req.Endpoint
+      r←m⌿routes
+      :If 1≠≢pp
+          req.Fail 404
+          result←(
+            detail: 'Not Found'
+          )
+          :Return
+      :EndIf
+      r←r[1;]
+      req.PathParams←⊃pp ⍝ Shouldn't have multiple matches.
+      req.QueryParams←() ⎕VSET ↓req.QueryParams
+      :If '_'=⊃3⊃r
+          result←(⍎3⊃r)req          ⍝ internal handler (on Stark)
+      :Else
+          :If DebugLevel 32
+              ⎕←'STARK: ',req.Method,' ',req.Endpoint,' → ',3⊃r
+          :EndIf
+          stopIf DebugLevel 2              ⍝ stop before user handler
+          :Trap 0 DebugLevel 1             ⍝ disable trap if bit 1 set (stop on error)
+              result←(Handlers⍎3⊃r)req
+          :Else
+              :If ~0∊⍴OnErrorFn
+                  err←()⎕NS ⎕DMX          ⍝ deep clone ⎕DMX before req.Fail may alter it
+                  req.Fail 500
+                  result←err(Handlers⍎OnErrorFn)req
+              :Else
+                  ⎕SIGNAL⊂⎕DMX.(('EN'EN)('EM'EM)('Message'(OSError{⍵,2⌽(×≢⊃⍬⍴2⌽⍺,⊂'')/'") ("',⊃⍬⍴2⌽⍺}Message))) ⍝ RESIGNAL
+              :EndIf
+          :EndTrap
+      :EndIf
+    ∇
+
+    ⍝ OpenAPI spec generation
+
+    ∇ r←OpenAPI
+      :Access Public Instance
+      r←_BuildOpenAPI
+    ∇
+
+    ∇ result←_OpenAPIHandler req
+      :Access Public Instance
+      result←_BuildOpenAPI
+    ∇
+
+    ∇ spec←_BuildOpenAPI;paths;r;pathKey;pathNS;method;op;opts;segs;varMask;param;pNS;ct;code;schemaNS;e;respNS;respKey;ctKey
+      :Access Private Instance
+      ⍝ _Mangle mangles strings into valid APL names; ⎕JSON will unmangle them
+      spec←(
+        openapi: '3.0.3'
+        info: Info
+      )
+      ctKey←_Mangle'application/json'
+
+      paths←()
+      :For r :In ↓_routes
+          :If '_'=⊃3⊃r ⋄ :Continue ⋄ :EndIf   ⍝ skip internal routes
+
+          ⍝ Get or create path object
+          pathKey←_Mangle 2⊃r
+          :If 0=paths.⎕NC⊂pathKey
+              paths ⎕VSET ⊂pathKey ()
+          :EndIf
+          pathNS←paths ⎕VGET pathKey
+
+          ⍝ Build operation object
+          method←⎕C 1⊃r
+          op←(
+            parameters: ⍬
+            responses: ()
+          )
+
+          ⍝ Map metadata from route options
+          opts←4⊃r
+          op.operationId←3⊃r
+
+          ⍝ Extract path parameters from {param} segments
+          ⍝ If opts.params.{name} exists, its schema overrides the default 'string'
+          segs←'/'(≠⊆⊢)2⊃r
+          varMask←'{'=⊃¨segs
+          :For param :In {1↓¯1↓⍵}¨varMask/segs
+              :If 9=⎕NC'opts' ⋄ :AndIf 9=opts.⎕NC'params' ⋄ :AndIf 9=opts.params.⎕NC⊂param
+                  pNS←(name: param ⋄ in: 'path' ⋄ required: (⊂'true') ⋄ schema: (opts.params⍎param))
+              :Else
+                  pNS←(name: param ⋄ in: 'path' ⋄ required: (⊂'true') ⋄ schema: (type: 'string'))
+              :EndIf
+              op.parameters,←⊂pNS
+          :EndFor
+          :If 9=⎕NC'opts'
+              :If 2=opts.⎕NC'operationId'  ⋄ op.operationId←opts.operationId  ⋄ :EndIf
+              :If 2=opts.⎕NC'summary'      ⋄ op.summary←opts.summary          ⋄ :EndIf
+              :If 2=opts.⎕NC'description'  ⋄ op.description←opts.description  ⋄ :EndIf
+              :If 2≤opts.⎕NC'parameters'   ⋄ op.parameters,←opts.parameters   ⋄ :EndIf
+              :If 2=opts.⎕NC'tags'
+                :If 2=≡opts.tags
+                  op.tags←opts.tags
+                :Else
+                  ⎕SIGNAL ⊂'tags must be a vector of character vectors. Depth 2'
+                :EndIf
+              :EndIf
+              
+
+              ⍝ Request body schema
+              :If 9=opts.⎕NC'body'
+                  ct←() ⎕VSET ⊂ctKey (schema: opts.body)
+                  op.requestBody←(required: (⊂'true') ⋄ content: ct)
+              :EndIf
+
+              ⍝ Success response: (statusCode schema)
+              :If 2≤opts.⎕NC'response'
+                  (code schemaNS)←opts.response
+                  ct←() ⎕VSET ⊂ctKey (schema: schemaNS)
+                  respNS←(description: 'Successful response' ⋄ content: ct)
+                  respKey←_Mangle⍕code
+                  op.responses ⎕VSET ⊂respKey respNS
+              :EndIf
+
+              ⍝ Error responses: vector of (statusCode description) pairs
+              :If 2≤opts.⎕NC'errors'
+                  :For e :In opts.errors
+                      respKey←_Mangle⍕⊃e
+                      op.responses ⎕VSET ⊂respKey (description: 2⊃e)
+                  :EndFor
+              :EndIf
+          :EndIf
+          :If 0=≢op.parameters ⋄ op.⎕EX'parameters' ⋄ :EndIf
+
+          ⍝ Default 200 response if none specified
+          :If 0=≢op.responses.⎕NL ¯2 ¯9
+              respKey←_Mangle'200'
+              op.responses ⎕VSET ⊂respKey (description: 'Successful response')
+          :EndIf
+
+          pathNS ⎕VSET ⊂method op
+      :EndFor
+
+      spec.paths←paths
+    ∇
+
+
+    ∇ Start port;code;j
+      :Access Public Instance
+      code←⎕NS ''
+      code.inst←⎕THIS
+      code.Get←{inst._Dispatch ⍵}
+      code.Post←{inst._Dispatch ⍵}
+      code.Put←{inst._Dispatch ⍵}
+      code.Delete←{inst._Dispatch ⍵}
+      code.Patch←{inst._Dispatch ⍵}
+      :If _jarvis≡⍬
+          j←⎕NEW (⊃⊃⎕CLASS ⎕THIS).##.Jarvis
+          _jarvis←j
+      :Else
+          j←_jarvis
+      :EndIf
+      j.Port←port
+      j.Paradigm←'REST'
+      j.CodeLocation←code
+      j.RESTFailProcessing←1
+      j.Debug←+/(1 4 8 16)×1=2|⌊Debug÷1 4 8 16   ⍝ forward bits 1,4,8,16; bit 2 is replaced by Stark's bit 64/2
+      :If ~0∊⍴OnErrorFn
+          :If 3≠Handlers.⎕NC⊂OnErrorFn
+              ⎕SIGNAL ⊂('EN' 11)('Message' ('STARK: OnErrorFn "',OnErrorFn,'" not found in Handlers'))
+          :ElseIf ~∧/(⊃Handlers.⎕AT OnErrorFn)∊¨1(2 ¯2)0
+              ⎕SIGNAL ⊂('EN' 11)('Message' ('STARK: OnErrorFn "',OnErrorFn,'" must be a result-returning dyadic function'))
+          :EndIf
+      :EndIf
+      :If ''≢ThreadMode
+          j.DYALOG_JARVIS_THREAD←ThreadMode
+      :EndIf
+      j.Start
+    ∇
+
+    ∇ Stop
+      :Access Public Instance
+      _jarvis.Stop
+    ∇
+
+    ∇ r←GetJarvis
+      :Access Public Instance
+      r←_jarvis
+    ∇
+
+    ∇ r←Routes
+      :Access Public Instance
+      r←('_'≠⊃¨_routes[;3])⌿_routes
+    ∇
+
+:EndClass

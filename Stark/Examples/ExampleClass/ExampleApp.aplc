@@ -1,0 +1,199 @@
+:Class ExampleApp
+⍝ Example application using the Stark class.
+⍝
+⍝   app←⎕NEW ExampleApp
+⍝   app.Start 8080
+⍝   app.Stop
+
+    :Field Private router
+    :Field Private db
+
+    ∇ Make
+      :Access Public
+      :Implements Constructor
+     
+      ⍝ Sample data
+      db←(
+          items:(
+              (id:1 ⋄ name:'Dyalog APL' ⋄ price:0 ⋄ tags:'language' 'array')
+              (id:2 ⋄ name:'SharpPlot' ⋄ price:0 ⋄ tags:'graphics' 'charting')
+          )
+      )
+     
+      ⍝ Stark setup
+      router←##.Stark.New ()
+      router.Info←(title:'Example Items API' ⋄ version:'1.0.0')
+     
+      ⍝ '/'router.Get('Root'RootSchema)
+      ⍝ '/items'router.Get('ListItems'ListItemsSchema)
+      ⍝ '/items/{id}'router.Get('GetItem'GetItemSchema)
+      ⍝ '/items'router.Post('CreateItem'CreateItemSchema)
+      ⍝ '/items/{id}'router.Put('UpdateItem'UpdateItemSchema)
+      ⍝ '/items/{id}'router.Delete('DeleteItem' DeleteItemSchema)
+      ⍝ '/search'router.Get('SearchItems'SearchItemsSchema)
+      ⍝ '/customer/{cust_id}/invoice/{inv_id}'router.Get('GetInvoice'GetInvoiceSchema)
+      ⍝ VS:
+      routes←[
+        ⍝ Method     Endpoint                               Function       Schema
+          'GET'      '/'                                    'Root'         RootSchema
+          'GET'      '/items'                               'ListItems'    ListItemsSchema
+          'GET'      '/items/{id}'                          'GetItem'      GetItemSchema
+          'POST'     '/items'                               'CreateItem'   CreateItemSchema
+          'PUT'      '/items/{id}'                          'UpdateItem'   UpdateItemSchema
+          'DELETE'   '/items/{id}'                          'DeleteItem'   DeleteItemSchema
+          'GET'      '/search'                              'SearchItems'  SearchItemsSchema
+          'GET'      '/customer/{cust_id}/invoice/{inv_id}' 'GetInvoice'   GetInvoiceSchema
+      ]
+      router.Register routes
+    ∇
+
+    ∇ Start port
+      :Access Public
+      router.Start port
+    ∇
+
+    ∇ Stop
+      :Access Public
+      router.Stop
+    ∇
+
+    ∇ r←GetStark
+      :Access Public
+      r←router
+    ∇
+
+    ⍝ Handlers
+
+    RootSchema←(
+    summary: 'Health check'
+    tags: ('status'⋄)
+    parameters: ,⊂(name:'verbose' ⋄ in:'query' ⋄ required:⊂'false' ⋄ schema:(type:'boolean'))
+    )
+    ∇ result←Root req;verbose
+      :Access Public
+      verbose←req.QueryParams ⎕VGET⊂(,'verbose')''
+      :If verbose≡'true'
+          result←(status:'ok' ⋄ version:'1.0.0' ⋄ uptime:'running')
+      :Else
+          result←(status:'ok')
+      :EndIf
+    ∇
+
+
+    ListItemsSchema←(
+    summary: 'List all items'
+    tags: ('items'⋄)
+    )
+    ∇ result←ListItems req
+      :Access Public
+      result←(items:db.items ⋄ total:≢db.items)
+    ∇
+
+
+    GetItemSchema←(
+    summary: 'Get an item by ID'
+    tags: ('items'⋄)
+    )
+    ∇ result←GetItem req;id;matches
+      :Access Public
+      id←⊃2⊃⎕VFI req.PathParams.id
+      matches←(db.items.id=id)/db.items
+      :If 0=≢matches
+          req.Fail 404
+          result←(detail:'Item not found')
+      :Else
+          result←⊃matches
+      :EndIf
+    ∇
+
+
+    CreateItemSchema←(
+    summary: 'Create a new item'
+    tags: ('items'⋄)
+    body: (type: 'object' ⋄ required: 'name' 'price' ⋄ properties: (
+    name:  (type: 'string')
+    price: (type: 'number')
+    ))
+    response: (201 (type: 'object' ⋄ properties: (
+    id:    (type: 'integer')
+    name:  (type: 'string')
+    price: (type: 'number')
+    tags:  (type: 'array' ⋄ items: (type: 'string'))
+    )))
+    )
+    ∇ result←CreateItem req;body;item
+      :Access Public
+      body←req.Payload
+      item←⎕NS''
+      item.id←1+⌈/0,db.items.id
+      item.name←body.name
+      item.price←body.price
+      item.tags←⍬
+      db.items,←⊂item
+      req.StatusCode←201
+      result←item
+    ∇
+
+
+    UpdateItemSchema←(
+    summary: 'Update an item'
+    tags: ('items'⋄)
+    body: (type: 'object' ⋄ required: 'name' 'price' ⋄ properties: (
+    name:  (type: 'string')
+    price: (type: 'number')
+    ))
+    )
+    ∇ result←UpdateItem req;id;idx;body
+      :Access Public
+      id←⊃2⊃⎕VFI req.PathParams.id
+      idx←db.items.id⍳id
+      :If idx>≢db.items
+          req.Fail 404
+          result←(detail:'Item not found')
+      :Else
+          body←req.Payload
+          (⊃db.items[idx]).name←body.name
+          (⊃db.items[idx]).price←body.price
+          result←⊃db.items[idx]
+      :EndIf
+    ∇
+
+
+    DeleteItemSchema←(
+    summary: 'Delete an item'
+    tags: ('items'⋄)
+    )
+    ∇ result←DeleteItem req;id;mask
+      :Access Public
+      id←⊃2⊃⎕VFI req.PathParams.id
+      mask←db.items.id≠id
+      :If mask∧.=1
+          req.Fail 404
+          result←(detail:'Item not found')
+      :Else
+          db.items←mask/db.items
+          result←(deleted:1 ⋄ id:id)
+      :EndIf
+    ∇
+
+    SearchItemsSchema←(
+    summary: 'Search items'
+    tags: ('search'⋄)
+    )
+    ∇ result←SearchItems req;q
+      :Access Public
+      q←req.QueryParams ⎕VGET⊂(,'q')''
+      result←(query:q ⋄ results:'mock' 'data' ⋄ total:2)
+    ∇
+
+
+    GetInvoiceSchema←(
+    summary: 'Get a customer invoice'
+    tags: ('invoices'⋄)
+    )
+    ∇ result←GetInvoice req
+      :Access Public
+      result←(customer:req.PathParams.cust_id ⋄ invoice:req.PathParams.inv_id)
+    ∇
+
+:EndClass

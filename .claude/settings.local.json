@@ -1,0 +1,22 @@
+{
+  "includeCoAuthoredBy": false,
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(chmod +x /Users/stefan/work/dev-environment/switch-toolchain.py)",
+      "Bash(python3 switch-toolchain.py --list)",
+      "Bash(python3 switch-toolchain.py --current)",
+      "Bash(python3 switch-toolchain.py go)",
+      "Bash(python3 switch-toolchain.py cs)",
+      "Bash(python3 switch-toolchain.py python)",
+      "Bash(gh api:*)",
+      "Bash(docker info:*)",
+      "Bash(docker build:*)"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": ".claude/statusline.sh"
+  },
+  "plansDirectory": "docs/plans"
+}

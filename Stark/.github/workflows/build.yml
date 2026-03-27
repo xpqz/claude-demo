@@ -1,0 +1,35 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: dyalog/dyalog:20.0
+      options: --user root
+
+    steps:
+      - name: Install Dependencies
+        run: |
+          apt-get update && apt-get install -y git nodejs zip unzip
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Activate Tatin and Cider
+        run: dyalogscript .github/activate.apls
+        
+      - name: Build package
+        run: dyalogscript Build.apls
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Stark
+          path: Dist/bkaw-Stark-*.zip

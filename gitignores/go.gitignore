@@ -1,0 +1,21 @@
+# Build output
+/bin/
+/dist/
+
+# Test
+coverage.out
+coverage.html
+
+# Vendor (uncomment if not vendoring)
+# vendor/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+
+# Misc
+*.log
+tmp/
