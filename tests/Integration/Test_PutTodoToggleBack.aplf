@@ -1,9 +1,9 @@
- r←Test_PutTodoToggleBack dummy;cmd;resp
- ⍝ POST, PUT twice: second PUT should remove completed class
+ r←Test_PutTodoToggleBack dummy;cmd;resp;id
  cmd←⎕NEW #.HttpCommand
  cmd.(Command URL ContentType)←'POST'(BaseURL,'/todos')'application/x-www-form-urlencoded'
  cmd.Params←⎕NS '' ⋄ cmd.Params.title←'ToggleBackTest'
- {}cmd.Run
- {}#.HttpCommand.Do 'PUT'(BaseURL,'/todos/1')
- resp←#.HttpCommand.Do 'PUT'(BaseURL,'/todos/1')
+ resp←cmd.Run
+ id←⊃(resp.Data⊆⍨resp.Data∊⎕D)~⊂''
+ {}#.HttpCommand.Do 'PUT'(BaseURL,'/todos/',id)
+ resp←#.HttpCommand.Do 'PUT'(BaseURL,'/todos/',id)
  r←~∨/'class="completed"'⍷resp.Data

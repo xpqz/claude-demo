@@ -17,6 +17,8 @@
       '/style.css' router.Get 'ServeCSS'
       '/todos' router.Get 'ListTodos'
       '/todos' router.Post 'CreateTodo'
+      '/todos/{id}' router.Put 'ToggleTodo'
+      '/todos/{id}' router.Delete 'DeleteTodo'
     ∇
 
     ∇ Start port
@@ -85,6 +87,52 @@
       todos,←⊂todo
       req.Response.Status←201
       result←(#.Render.TodoItem todo) #.Render.RespondHTML req
+    ∇
+
+    ∇ idx←FindTodo req;valid;values;id;mask
+      :Access Private Instance
+      (valid values)←⎕VFI req.PathParams.id
+      :If (1≠≢valid)∨(~⊃valid)
+          req.Fail 400
+          idx←¯1
+          :Return
+      :EndIf
+      id←⊃values
+      :If 0=≢todos
+          req.Fail 404
+          idx←¯1
+          :Return
+      :EndIf
+      mask←todos.id=id
+      :If ~∨/mask
+          req.Fail 404
+          idx←¯1
+          :Return
+      :EndIf
+      idx←mask⍳1
+    ∇
+
+    ∇ result←ToggleTodo req;idx;todo
+      :Access Public Instance
+      idx←FindTodo req
+      :If ¯1=idx
+          result←'<div class="error">Not found</div>' #.Render.RespondHTML req
+          :Return
+      :EndIf
+      todo←idx⊃todos
+      todo.completed←~todo.completed
+      result←(#.Render.TodoItem todo) #.Render.RespondHTML req
+    ∇
+
+    ∇ result←DeleteTodo req;idx
+      :Access Public Instance
+      idx←FindTodo req
+      :If ¯1=idx
+          result←'<div class="error">Not found</div>' #.Render.RespondHTML req
+          :Return
+      :EndIf
+      todos←((⍳≢todos)≠idx)⌿todos
+      result←'' #.Render.RespondHTML req
     ∇
 
     ∇ result←err HandleError req
