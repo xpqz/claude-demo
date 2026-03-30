@@ -1,0 +1,5 @@
+ r←Test_RespondHTMLSetsContentType dummy;req;rv
+ req←⎕NEW #.Mocks.MockRequest('GET' '/')
+ rv←'<p>hi</p>' #.Render.RespondHTML req
+ r←(1 2≡⍴req.Response.Headers)∧('Content-Type'≡⊃req.Response.Headers[1;1])
+ r∧←'text/html; charset=utf-8'≡⊃req.Response.Headers[1;2]

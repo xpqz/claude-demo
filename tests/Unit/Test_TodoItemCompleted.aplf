@@ -1,0 +1,4 @@
+ r←Test_TodoItemCompleted dummy;todo;html
+ todo←⎕NS '' ⋄ todo.(id title completed)←2 'Done task' 1
+ html←#.Render.TodoItem todo
+ r←∨/'<li id="todo-2" class="completed"'⍷html

@@ -1,0 +1,4 @@
+ r←Test_RespondHTMLReturnsHTML dummy;req;rv
+ req←⎕NEW #.Mocks.MockRequest('GET' '/')
+ rv←'<p>test</p>' #.Render.RespondHTML req
+ r←'<p>test</p>'≡rv

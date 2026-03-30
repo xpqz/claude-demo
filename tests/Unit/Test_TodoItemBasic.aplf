@@ -1,0 +1,5 @@
+ r←Test_TodoItemBasic dummy;todo;html
+ todo←⎕NS '' ⋄ todo.(id title completed)←1 'Buy milk' 0
+ html←#.Render.TodoItem todo
+ r←∨/'<li id="todo-1"'⍷html
+ r∧←~∨/'class="completed"'⍷html

@@ -1,0 +1,8 @@
+ r←Test_TodoListMultiple dummy;todos;html;t
+ todos←⍬
+ :For t :In ⍳3
+     todo←⎕NS '' ⋄ todo.(id title completed)←t(⍕t)0
+     todos,←⊂todo
+ :EndFor
+ html←#.Render.TodoList todos
+ r←3=+/'<li '⍷html

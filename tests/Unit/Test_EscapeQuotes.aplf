@@ -1,0 +1,2 @@
+ r←Test_EscapeQuotes dummy
+ r←'&quot;it&#39;s&quot;'≡#.Render.Escape'"it''s"'
