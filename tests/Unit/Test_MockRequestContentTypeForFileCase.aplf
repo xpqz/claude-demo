@@ -1,0 +1,5 @@
+ r←Test_MockRequestContentTypeForFileCase dummy;req
+ ⍝ Verify ContentTypeForFile handles uppercase extensions
+ req←⎕NEW #.Mocks.MockRequest('GET' '/')
+ r←'text/html; charset=utf-8'≡req.ContentTypeForFile'/page.HTML'
+ r∧←'text/css'≡req.ContentTypeForFile'/style.CSS'

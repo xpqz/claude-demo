@@ -1,7 +1,17 @@
  r←Test_MockRequestConstruction dummy;req
- ⍝ Verify MockRequest initialises fields correctly
+ ⍝ Verify MockRequest initialises all fields correctly
  req←⎕NEW #.Mocks.MockRequest('GET' '/items')
  r←('GET'≡req.Method)∧('/items'≡req.Endpoint)
  r∧←200=req.StatusCode
+ ⍝ Payload and PathParams must be namespaces, not strings
+ r∧←9.1=⎕NC⊂'req.Payload'
+ r∧←9.1=⎕NC⊂'req.PathParams'
+ ⍝ QueryParams must be a 0-row, 2-column matrix
+ r∧←(0 2)≡⍴req.QueryParams
+ ⍝ Response fields
  r∧←0=req.Response.Status
+ r∧←'OK'≡req.Response.StatusText
+ r∧←''≡req.Response.Payload
+ ⍝ Response.Headers: 0-row, 2-column character matrix
  r∧←(0 2)≡⍴req.Response.Headers
+ r∧←' '=⊃⎕DR req.Response.Headers

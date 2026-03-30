@@ -1,0 +1,5 @@
+ r←Test_MockRequestFailWithMessage dummy;req
+ ⍝ Verify Fail accepts an optional left argument without error
+ req←⎕NEW #.Mocks.MockRequest('GET' '/')
+ 'Not Found'req.Fail 404
+ r←404=req.Response.Status
