@@ -1,3 +1,7 @@
  r←Test_IndexHtmlHasForm dummy;html
  html←⊃⎕NGET'./static/index.html' 0
  r←∨/'hx-post="/todos"'⍷html
+ r∧←∨/'hx-target="#todo-list"'⍷html
+ r∧←∨/'hx-swap="beforeend"'⍷html
+ r∧←∨/'this.reset()'⍷html
+ r∧←∨/'name="title"'⍷html
