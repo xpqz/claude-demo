@@ -198,6 +198,11 @@
               :EndIf
           :EndTrap
       :EndIf
+      ⍝ Jarvis REST handler omits Content-Length for empty responses,
+      ⍝ causing clients to wait indefinitely. Set it explicitly.
+      :If 0∊⍴result
+          'Content-Length'req.SetHeader'0'
+      :EndIf
     ∇
 
     ∇ _ParseBody req;pairs;p;name;value;fd
