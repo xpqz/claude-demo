@@ -1,0 +1,6 @@
+ r←Test_ToggleTodoInvalidId dummy;app;req
+ app←⎕NEW #.TodoApp(⊃1 ⎕NPARTS'./static/')
+ req←⎕NEW #.Mocks.MockRequest('PUT' '/todos/abc')
+ req.PathParams←⎕NS '' ⋄ req.PathParams.id←'abc'
+ {}app.ToggleTodo req
+ r←400=req.Response.Status

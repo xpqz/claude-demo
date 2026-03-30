@@ -1,0 +1,10 @@
+ r←Test_ToggleTodoFlipsBack dummy;app;req
+ app←⎕NEW #.TodoApp(⊃1 ⎕NPARTS'./static/')
+ req←⎕NEW #.Mocks.MockRequest('POST' '/todos')
+ req.Payload←⎕NS '' ⋄ req.Payload.title←,⊂'Test'
+ {}app.CreateTodo req
+ req←⎕NEW #.Mocks.MockRequest('PUT' '/todos/1')
+ req.PathParams←⎕NS '' ⋄ req.PathParams.id←'1'
+ {}app.ToggleTodo req
+ {}app.ToggleTodo req
+ r←0=(⊃app.todos).completed

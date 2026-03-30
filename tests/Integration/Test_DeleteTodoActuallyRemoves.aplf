@@ -1,0 +1,8 @@
+ r←Test_DeleteTodoActuallyRemoves dummy;cmd;resp
+ cmd←⎕NEW #.HttpCommand
+ cmd.(Command URL ContentType)←'POST'(BaseURL,'/todos')'application/x-www-form-urlencoded'
+ cmd.Params←⎕NS '' ⋄ cmd.Params.title←'RemoveMe'
+ {}cmd.Run
+ {}#.HttpCommand.Do 'DELETE'(BaseURL,'/todos/1')
+ resp←#.HttpCommand.Get(BaseURL,'/todos')
+ r←~∨/'RemoveMe'⍷resp.Data

@@ -1,0 +1,3 @@
+ r←Test_DeleteTodoInvalidId dummy;resp
+ resp←#.HttpCommand.Do 'DELETE'(BaseURL,'/todos/abc')
+ r←400=resp.HttpStatus
