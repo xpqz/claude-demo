@@ -1,0 +1,6 @@
+ r←Test_MockRequestSetContentType dummy;req
+ ⍝ Verify SetContentType adds Content-Type header
+ req←⎕NEW #.Mocks.MockRequest('GET' '/')
+ req.SetContentType'text/html; charset=utf-8'
+ r←(1 2≡⍴req.Response.Headers)∧('Content-Type'≡req.Response.Headers[1;1])
+ r∧←'text/html; charset=utf-8'≡req.Response.Headers[1;2]

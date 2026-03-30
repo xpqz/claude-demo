@@ -1,0 +1,4 @@
+ r←Test_MockRequestContentTypeForFileCss dummy;req
+ ⍝ Verify ContentTypeForFile returns text/css (no charset) for .css files
+ req←⎕NEW #.Mocks.MockRequest('GET' '/')
+ r←'text/css'≡req.ContentTypeForFile'/path/to/style.css'

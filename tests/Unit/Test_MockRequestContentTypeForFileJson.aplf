@@ -1,0 +1,4 @@
+ r←Test_MockRequestContentTypeForFileJson dummy;req
+ ⍝ Verify ContentTypeForFile returns application/json for .json files
+ req←⎕NEW #.Mocks.MockRequest('GET' '/')
+ r←'application/json'≡req.ContentTypeForFile'/data.json'

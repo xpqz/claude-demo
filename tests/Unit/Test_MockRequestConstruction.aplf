@@ -1,0 +1,7 @@
+ r←Test_MockRequestConstruction dummy;req
+ ⍝ Verify MockRequest initialises fields correctly
+ req←⎕NEW #.Mocks.MockRequest('GET' '/items')
+ r←('GET'≡req.Method)∧('/items'≡req.Endpoint)
+ r∧←200=req.StatusCode
+ r∧←0=req.Response.Status
+ r∧←(0 2)≡⍴req.Response.Headers

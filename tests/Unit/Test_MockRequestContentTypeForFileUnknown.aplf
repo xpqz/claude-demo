@@ -1,0 +1,4 @@
+ r←Test_MockRequestContentTypeForFileUnknown dummy;req
+ ⍝ Verify ContentTypeForFile returns application/octet-stream for unknown extensions
+ req←⎕NEW #.Mocks.MockRequest('GET' '/')
+ r←'application/octet-stream'≡req.ContentTypeForFile'/data.xyz'
