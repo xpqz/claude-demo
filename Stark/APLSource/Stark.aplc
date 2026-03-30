@@ -178,7 +178,6 @@
       r←r[1;]
       req.PathParams←⊃pp ⍝ Shouldn't have multiple matches.
       req.QueryParams←() ⎕VSET ↓req.QueryParams
-      _ParseBody req
       :If '_'=⊃3⊃r
           result←(⍎3⊃r)req          ⍝ internal handler (on Stark)
       :Else
@@ -203,29 +202,6 @@
       :If 0∊⍴result
           'Content-Length'req.SetHeader'0'
       :EndIf
-    ∇
-
-    ∇ _ParseBody req;pairs;p;name;value;fd
-      :Access Private Instance
-      ⍝ Parse the request body into req.Payload.
-      ⍝ Jarvis ParsePayload is disabled to prevent crashes on empty bodies
-      ⍝ with content-type headers (common with htmx DELETE/PUT).
-      :If 0∊⍴req.Body ⋄ :Return ⋄ :EndIf
-      :Select req.ContentType
-      :Case 'application/json'
-          req.Payload←⎕JSON req.Body
-      :Case 'application/x-www-form-urlencoded'
-          fd←⎕NS ''
-          pairs←'&'(≠⊆⊢)req.Body
-          :For p :In pairs
-              name value←2↑('='(≠⊆⊢)p),⊂''
-              name←req.URLDecode name
-              :If ~0∊⍴value ⋄ value←req.URLDecode value ⋄ :EndIf
-              :If 0=fd.⎕NC name ⋄ fd{⍺⍎⍵,'←⍬'}name ⋄ :EndIf
-              fd(name{⍺⍎⍺⍺,',←⍵'})value
-          :EndFor
-          req.Payload←fd
-      :EndSelect
     ∇
 
     ⍝ OpenAPI spec generation
@@ -354,7 +330,6 @@
       j.Paradigm←'REST'
       j.CodeLocation←code
       j.RESTFailProcessing←1
-      j.ParsePayload←0
       j.Debug←+/(1 4 8 16)×1=2|⌊Debug÷1 4 8 16   ⍝ forward bits 1,4,8,16; bit 2 is replaced by Stark's bit 64/2
       :If ~0∊⍴OnErrorFn
           :If 3≠⌊|Handlers.⎕NC⊂OnErrorFn
