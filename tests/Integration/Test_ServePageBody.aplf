@@ -1,0 +1,3 @@
+ r←Test_ServePageBody dummy;resp
+ resp←#.HttpCommand.Get(BaseURL,'/')
+ r←∨/'id="todo-list"'⍷resp.Data

@@ -1,0 +1,4 @@
+ r←Test_ServeCSSContentType dummy;resp;ct
+ resp←#.HttpCommand.Get(BaseURL,'/style.css')
+ ct←resp.GetHeader'content-type'
+ r←∨/'text/css'⍷ct

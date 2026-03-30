@@ -1,0 +1,4 @@
+ r←Test_ServePageContentType dummy;resp;ct
+ resp←#.HttpCommand.Get(BaseURL,'/')
+ ct←resp.GetHeader'content-type'
+ r←∨/'text/html'⍷ct

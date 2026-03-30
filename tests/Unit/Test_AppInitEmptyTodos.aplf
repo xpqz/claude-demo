@@ -1,0 +1,3 @@
+ r←Test_AppInitEmptyTodos dummy;app
+ app←⎕NEW #.TodoApp(⊃1 ⎕NPARTS'./static/')
+ r←0=≢app.todos
