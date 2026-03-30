@@ -1,0 +1,5 @@
+ r←Test_ListTodosEmpty dummy;app;req;result
+ app←⎕NEW #.TodoApp(⊃1 ⎕NPARTS'./static/')
+ req←⎕NEW #.Mocks.MockRequest('GET' '/todos')
+ result←app.ListTodos req
+ r←''≡result

@@ -1,0 +1,6 @@
+ r←Test_CreateTodoMissingTitle dummy;app;req
+ app←⎕NEW #.TodoApp(⊃1 ⎕NPARTS'./static/')
+ req←⎕NEW #.Mocks.MockRequest('POST' '/todos')
+ req.Payload←⎕NS ''
+ {}app.CreateTodo req
+ r←400=req.Response.Status

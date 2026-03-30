@@ -1,0 +1,3 @@
+ r←Test_PostTodoReturnsFragment dummy;resp
+ resp←#.HttpCommand.Do 'POST'(BaseURL,'/todos')'title=Buy milk'
+ r←(∨/'<li'⍷resp.Data)∧(∨/'Buy milk'⍷resp.Data)

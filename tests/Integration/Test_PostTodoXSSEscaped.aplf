@@ -1,0 +1,5 @@
+ r←Test_PostTodoXSSEscaped dummy;resp
+ {}#.HttpCommand.Do 'POST'(BaseURL,'/todos')'title=<script>alert(1)</script>'
+ resp←#.HttpCommand.Get(BaseURL,'/todos')
+ r←∨/'&lt;script&gt;'⍷resp.Data
+ r∧←~∨/'<script>'⍷resp.Data

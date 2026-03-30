@@ -1,0 +1,4 @@
+ r←Test_PostTodoContentType dummy;resp;ct
+ resp←#.HttpCommand.Do 'POST'(BaseURL,'/todos')'title=Buy milk'
+ ct←resp.GetHeader'content-type'
+ r←∨/'text/html'⍷ct

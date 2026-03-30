@@ -1,0 +1,4 @@
+ r←Test_GetTodosAfterPost dummy;resp
+ {}#.HttpCommand.Do 'POST'(BaseURL,'/todos')'title=Integration test item'
+ resp←#.HttpCommand.Get(BaseURL,'/todos')
+ r←∨/'Integration test item'⍷resp.Data

@@ -1,0 +1,3 @@
+ r←Test_PostTodoEmptyTitle dummy;resp
+ resp←#.HttpCommand.Do 'POST'(BaseURL,'/todos')'title='
+ r←400=resp.HttpStatus
