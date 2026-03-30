@@ -26,7 +26,7 @@ Opens on `http://localhost:8080` by default.
 dyalogscript RunTests.apls
 ```
 
-Runs the full unit and integration test suite.
+Runs 92 tests (66 unit, 26 integration) covering rendering, static file serving, CRUD operations, input validation, XSS prevention, and error handling.
 
 ## Project structure
 
@@ -39,10 +39,12 @@ static/
   style.css             -- minimal styling
 Stark/                  -- Stark REST router (dependency)
 tests/
-  Unit/                 -- unit tests (rendering, data operations)
+  Unit/                 -- unit tests (rendering, data operations, mocks)
   Integration/          -- HTTP-level tests via HttpCommand
+  Mocks/                -- MockRequest (Jarvis request stand-in)
+  RunHelper.apln        -- test discovery and execution
 Run.apls                -- production entry point
-RunTests.apls           -- test runner
+RunTests.apls           -- test runner (unit + integration with server lifecycle)
 ```
 
 ## Documentation
@@ -51,6 +53,7 @@ RunTests.apls           -- test runner
 - [Implementation plan](docs/plans/implementation.md)
 - [Architecture review](docs/reviews/architecture.md)
 - [Implementation review](docs/reviews/implementation.md)
+- PR docs for each phase: [docs/prs/](docs/prs/)
 
 ## Requirements
 
