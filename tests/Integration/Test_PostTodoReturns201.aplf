@@ -1,3 +1,6 @@
- r←Test_PostTodoReturns201 dummy;resp
- resp←#.HttpCommand.Do 'POST'(BaseURL,'/todos')'title=Buy milk'
+ r←Test_PostTodoReturns201 dummy;cmd;resp
+ cmd←⎕NEW #.HttpCommand
+ cmd.(Command URL ContentType)←'POST'(BaseURL,'/todos')'application/x-www-form-urlencoded'
+ cmd.Params←⎕NS '' ⋄ cmd.Params.title←'Buy milk'
+ resp←cmd.Run
  r←201=resp.HttpStatus

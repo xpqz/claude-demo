@@ -20,7 +20,7 @@
 ⍝ Integration tests
 ⎕←''
 ⎕←'=== Integration Tests ==='
-port←19877
+port←18900+?100
 staticRoot←⊃1 ⎕NPARTS './static/'
 app←⎕NEW #.TodoApp staticRoot
 app.RegisterTestRoutes
