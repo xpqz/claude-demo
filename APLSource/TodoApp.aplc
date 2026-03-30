@@ -38,10 +38,10 @@
 
     ∇ RegisterTestRoutes
       :Access Public Instance
-      '/test/break' router.Get '_BrokenHandler'
+      '/test/break' router.Get 'BrokenHandler'
     ∇
 
-    ∇ result←_BrokenHandler req
+    ∇ result←BrokenHandler req
       :Access Public Instance
       ⎕SIGNAL ⊂('EN' 11)('Message' 'deliberate test error')
     ∇

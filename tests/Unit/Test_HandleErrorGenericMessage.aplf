@@ -1,0 +1,8 @@
+ r←Test_HandleErrorGenericMessage dummy;app;req;err;result
+ app←⎕NEW #.TodoApp(⊃1 ⎕NPARTS'./static/')
+ req←⎕NEW #.Mocks.MockRequest('GET' '/test/break')
+ err←⎕NS '' ⋄ err.(EN EM Message)←11 'DOMAIN ERROR' 'test'
+ result←err app.HandleError req
+ ⍝ Result must not contain the error message
+ r←~∨/'test'⍷result
+ r∧←~∨/'DOMAIN ERROR'⍷result
