@@ -1,0 +1,6 @@
+ r←Test_PostTodoReturnsFragment dummy;cmd;resp
+ cmd←⎕NEW #.HttpCommand
+ cmd.(Command URL ContentType)←'POST'(BaseURL,'/todos')'application/x-www-form-urlencoded'
+ cmd.Params←⎕NS '' ⋄ cmd.Params.title←'Buy milk'
+ resp←cmd.Run
+ r←(∨/'<li'⍷resp.Data)∧(∨/'Buy milk'⍷resp.Data)

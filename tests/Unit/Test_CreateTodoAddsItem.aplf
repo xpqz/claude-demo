@@ -1,0 +1,6 @@
+ r←Test_CreateTodoAddsItem dummy;app;req
+ app←⎕NEW #.TodoApp(⊃1 ⎕NPARTS'./static/')
+ req←⎕NEW #.Mocks.MockRequest('POST' '/todos')
+ req.Payload←⎕NS '' ⋄ req.Payload.title←,⊂'Buy milk'
+ {}app.CreateTodo req
+ r←1=≢app.todos

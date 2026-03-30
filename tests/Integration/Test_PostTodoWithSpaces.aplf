@@ -1,0 +1,8 @@
+ r←Test_PostTodoWithSpaces dummy;cmd;resp
+ ⍝ Verify round-trip with a space-containing title
+ cmd←⎕NEW #.HttpCommand
+ cmd.(Command URL ContentType)←'POST'(BaseURL,'/todos')'application/x-www-form-urlencoded'
+ cmd.Params←⎕NS '' ⋄ cmd.Params.title←'Buy milk'
+ {}cmd.Run
+ resp←#.HttpCommand.Get(BaseURL,'/todos')
+ r←∨/'Buy milk'⍷resp.Data

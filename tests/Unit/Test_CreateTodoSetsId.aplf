@@ -1,0 +1,9 @@
+ r←Test_CreateTodoSetsId dummy;app;req
+ app←⎕NEW #.TodoApp(⊃1 ⎕NPARTS'./static/')
+ req←⎕NEW #.Mocks.MockRequest('POST' '/todos')
+ req.Payload←⎕NS '' ⋄ req.Payload.title←,⊂'First'
+ {}app.CreateTodo req
+ req←⎕NEW #.Mocks.MockRequest('POST' '/todos')
+ req.Payload←⎕NS '' ⋄ req.Payload.title←,⊂'Second'
+ {}app.CreateTodo req
+ r←(1=(⊃app.todos).id)∧(2=(2⊃app.todos).id)

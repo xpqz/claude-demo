@@ -15,6 +15,8 @@
       router.OnErrorFn←'HandleError'
       '/' router.Get 'ServePage'
       '/style.css' router.Get 'ServeCSS'
+      '/todos' router.Get 'ListTodos'
+      '/todos' router.Post 'CreateTodo'
     ∇
 
     ∇ Start port
@@ -54,6 +56,35 @@
       path←staticRoot,'style.css'
       req.SetContentType req.ContentTypeForFile path
       result←⊃⎕NGET path 0
+    ∇
+
+    ∇ result←ListTodos req
+      :Access Public Instance
+      result←(#.Render.TodoList todos) #.Render.RespondHTML req
+    ∇
+
+    ∇ result←CreateTodo req;title;todo
+      :Access Public Instance
+      :If {0::1 ⋄ 0=⍵.⎕NC⊂'title'}req.Payload
+          req.Fail 400
+          result←'<div class="error">Title is required</div>' #.Render.RespondHTML req
+          :Return
+      :EndIf
+      title←req.Payload.title
+      :If 1<≡title ⋄ title←⊃title ⋄ :EndIf
+      title←(+/∧\' '=title)↓title
+      title←(-+/∧\' '=⌽title)↓title
+      :If 0=≢title
+          req.Fail 400
+          result←'<div class="error">Title must not be empty</div>' #.Render.RespondHTML req
+          :Return
+      :EndIf
+      todo←⎕NS ''
+      todo.(id title completed)←nextId title 0
+      nextId+←1
+      todos,←⊂todo
+      req.Response.Status←201
+      result←(#.Render.TodoItem todo) #.Render.RespondHTML req
     ∇
 
     ∇ result←err HandleError req
