@@ -3,4 +3,4 @@
  req←⎕NEW #.Mocks.MockRequest('GET' '/')
  req.SetContentType'application/json'
  req.SetContentType'text/css'
- r←(1 2≡⍴req.Response.Headers)∧('text/css'≡req.Response.Headers[1;2])
+ r←(1 2≡⍴req.Response.Headers)∧('text/css'≡⊃req.Response.Headers[1;2])

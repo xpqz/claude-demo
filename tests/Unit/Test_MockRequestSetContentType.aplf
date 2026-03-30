@@ -2,6 +2,6 @@
  ⍝ Verify SetContentType adds Content-Type header and returns name-value pair
  req←⎕NEW #.Mocks.MockRequest('GET' '/')
  rv←req.SetContentType'text/html; charset=utf-8'
- r←(1 2≡⍴req.Response.Headers)∧('Content-Type'≡req.Response.Headers[1;1])
- r∧←'text/html; charset=utf-8'≡req.Response.Headers[1;2]
+ r←(1 2≡⍴req.Response.Headers)∧('Content-Type'≡⊃req.Response.Headers[1;1])
+ r∧←'text/html; charset=utf-8'≡⊃req.Response.Headers[1;2]
  r∧←rv≡'Content-Type' 'text/html; charset=utf-8'
