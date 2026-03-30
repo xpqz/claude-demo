@@ -1,0 +1,3 @@
+ r←Test_IndexHtmlHasStyleLink dummy;html
+ html←⊃⎕NGET'./static/index.html' 0
+ r←∨/'href="/style.css"'⍷html

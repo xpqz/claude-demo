@@ -1,0 +1,8 @@
+ r←Test_IndexHtmlExists dummy
+ ⍝ Verify static/index.html can be read from disk
+ :Trap 0
+     {}⎕NGET'./static/index.html' 0
+     r←1
+ :Else
+     r←0
+ :EndTrap

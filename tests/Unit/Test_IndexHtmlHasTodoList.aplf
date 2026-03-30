@@ -1,0 +1,3 @@
+ r←Test_IndexHtmlHasTodoList dummy;html
+ html←⊃⎕NGET'./static/index.html' 0
+ r←∨/'id="todo-list"'⍷html
