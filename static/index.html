@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Todos</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+</head>
+<body>
+  <h1>Todos</h1>
+  <form hx-post="/todos" hx-target="#todo-list" hx-swap="beforeend" hx-on::after-request="this.reset()">
+    <input type="text" name="title" placeholder="What needs doing?" required>
+    <button type="submit">Add</button>
+  </form>
+  <ul id="todo-list" hx-get="/todos" hx-trigger="load"></ul>
+</body>
+</html>

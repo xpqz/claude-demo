@@ -1,0 +1,3 @@
+ r←Test_StyleCssHasError dummy;css
+ css←⊃⎕NGET'./static/style.css' 0
+ r←∨/'.error'⍷css

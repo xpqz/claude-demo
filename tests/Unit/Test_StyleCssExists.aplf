@@ -1,0 +1,8 @@
+ r←Test_StyleCssExists dummy
+ ⍝ Verify static/style.css can be read from disk
+ :Trap 0
+     {}⎕NGET'./static/style.css' 0
+     r←1
+ :Else
+     r←0
+ :EndTrap
