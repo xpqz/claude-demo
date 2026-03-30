@@ -1,0 +1,11 @@
+#!/usr/bin/dyalogscript
+
+⎕IO←1
+⎕SE.(⍎⊃2⎕FIX'/StartupSession.aplf',⍨2⎕NQ#'GetEnvironment' 'DYALOG')
+
+⎕SE.Link.Import '#' './Stark/APLSource'
+⎕SE.Link.Import '#' './APLSource'
+
+staticRoot←⊃1 ⎕NPARTS './static/'
+app←⎕NEW #.TodoApp staticRoot
+app.Start 8080

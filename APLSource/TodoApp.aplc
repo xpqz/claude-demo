@@ -1,0 +1,64 @@
+:Class TodoApp
+
+    :Field Public Instance router
+    :Field Public Instance todos←⍬
+    :Field Public Instance nextId←1
+    :Field Public Instance staticRoot←''
+
+    ∇ make1 root
+      :Access Public
+      :Implements Constructor
+      staticRoot←root,('/'≠⊃⌽root)/'/'
+      router←⎕NEW #.Stark
+      router.Handlers←⎕THIS
+      router.ThreadMode←0
+      router.OnErrorFn←'HandleError'
+      '/' router.Get 'ServePage'
+      '/style.css' router.Get 'ServeCSS'
+    ∇
+
+    ∇ Start port
+      :Access Public Instance
+      router.Start port
+    ∇
+
+    ∇ Stop
+      :Access Public Instance
+      router.Stop
+    ∇
+
+    ∇ r←GetStark
+      :Access Public Instance
+      r←router
+    ∇
+
+    ∇ RegisterTestRoutes
+      :Access Public Instance
+      '/test/break' router.Get '_BrokenHandler'
+    ∇
+
+    ∇ result←_BrokenHandler req
+      :Access Public Instance
+      ⎕SIGNAL ⊂('EN' 11)('Message' 'deliberate test error')
+    ∇
+
+    ∇ result←ServePage req;path
+      :Access Public Instance
+      path←staticRoot,'index.html'
+      req.SetContentType req.ContentTypeForFile path
+      result←⊃⎕NGET path 0
+    ∇
+
+    ∇ result←ServeCSS req;path
+      :Access Public Instance
+      path←staticRoot,'style.css'
+      req.SetContentType req.ContentTypeForFile path
+      result←⊃⎕NGET path 0
+    ∇
+
+    ∇ result←err HandleError req
+      :Access Public Instance
+      result←'<div class="error">Something went wrong</div>' #.Render.RespondHTML req
+    ∇
+
+:EndClass
