@@ -1,0 +1,5 @@
+ r←Test_TodoListSingle dummy;todo;html
+ ⍝ Single-element vector (APL scalar/vector edge case)
+ todo←⎕NS '' ⋄ todo.(id title completed)←1 'Only item' 0
+ html←#.Render.TodoList ,⊂todo
+ r←1=+/'<li '⍷html
