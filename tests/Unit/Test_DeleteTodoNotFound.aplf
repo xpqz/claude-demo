@@ -1,0 +1,6 @@
+ r←Test_DeleteTodoNotFound dummy;app;req
+ app←⎕NEW #.TodoApp(⊃1 ⎕NPARTS'./static/')
+ req←⎕NEW #.Mocks.MockRequest('DELETE' '/todos/999')
+ req.PathParams←⎕NS '' ⋄ req.PathParams.id←'999'
+ {}app.DeleteTodo req
+ r←404=req.Response.Status

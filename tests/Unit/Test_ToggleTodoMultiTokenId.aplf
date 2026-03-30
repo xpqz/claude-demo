@@ -1,0 +1,6 @@
+ r←Test_ToggleTodoMultiTokenId dummy;app;req
+ app←⎕NEW #.TodoApp(⊃1 ⎕NPARTS'./static/')
+ req←⎕NEW #.Mocks.MockRequest('PUT' '/todos/1 2')
+ req.PathParams←⎕NS '' ⋄ req.PathParams.id←'1 2'
+ {}app.ToggleTodo req
+ r←400=req.Response.Status

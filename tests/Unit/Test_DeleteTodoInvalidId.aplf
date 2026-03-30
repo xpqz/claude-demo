@@ -1,0 +1,6 @@
+ r←Test_DeleteTodoInvalidId dummy;app;req
+ app←⎕NEW #.TodoApp(⊃1 ⎕NPARTS'./static/')
+ req←⎕NEW #.Mocks.MockRequest('DELETE' '/todos/abc')
+ req.PathParams←⎕NS '' ⋄ req.PathParams.id←'abc'
+ {}app.DeleteTodo req
+ r←400=req.Response.Status
