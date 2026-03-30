@@ -1,0 +1,7 @@
+ r←TodoList todos
+ ⍝ Render a vector of todo namespaces as concatenated <li> fragments.
+ :If 0=≢todos
+     r←''
+ :Else
+     r←∊TodoItem¨todos
+ :EndIf

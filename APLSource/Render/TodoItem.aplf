@@ -1,0 +1,10 @@
+ r←TodoItem todo;sid;cls
+ ⍝ Render a single todo as an <li> fragment with htmx attributes.
+ sid←⍕todo.id
+ cls←(todo.completed)/' class="completed"'
+ r←'<li id="todo-',sid,'"',cls,'>'
+ r,←'<span hx-put="/todos/',sid,'" hx-target="#todo-',sid,'" hx-swap="outerHTML">'
+ r,←Escape todo.title
+ r,←'</span>'
+ r,←'<button hx-delete="/todos/',sid,'" hx-target="#todo-',sid,'" hx-swap="delete">x</button>'
+ r,←'</li>'

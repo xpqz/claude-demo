@@ -1,0 +1,3 @@
+ result←html RespondHTML req
+ req.SetContentType'text/html; charset=utf-8'
+ result←html
