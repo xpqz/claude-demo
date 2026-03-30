@@ -1,0 +1,3 @@
+ r←Test_UnknownRouteReturns404 dummy;resp
+ resp←#.HttpCommand.Get(BaseURL,'/nonexistent')
+ r←404=resp.HttpStatus

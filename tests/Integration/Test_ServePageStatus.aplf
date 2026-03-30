@@ -1,0 +1,3 @@
+ r←Test_ServePageStatus dummy;resp
+ resp←#.HttpCommand.Get(BaseURL,'/')
+ r←200=resp.HttpStatus

@@ -1,0 +1,3 @@
+ r←Test_ServeCSSStatus dummy;resp
+ resp←#.HttpCommand.Get(BaseURL,'/style.css')
+ r←200=resp.HttpStatus

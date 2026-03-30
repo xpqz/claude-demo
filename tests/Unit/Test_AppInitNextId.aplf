@@ -1,0 +1,3 @@
+ r←Test_AppInitNextId dummy;app
+ app←⎕NEW #.TodoApp(⊃1 ⎕NPARTS'./static/')
+ r←1=app.nextId
