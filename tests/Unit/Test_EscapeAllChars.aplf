@@ -1,0 +1,3 @@
+ r←Test_EscapeAllChars dummy
+ ⍝ All five special characters in one string, verifying replacement order
+ r←'&amp;&lt;&gt;&quot;&#39;'≡#.Render.Escape'&<>"'''

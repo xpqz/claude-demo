@@ -1,0 +1,8 @@
+ r←Test_RespondHTMLSetsContentType dummy;req;rv;mask;idx
+ req←⎕NEW #.Mocks.MockRequest('GET' '/')
+ rv←'<p>hi</p>' #.Render.RespondHTML req
+ ⍝ Find Content-Type row regardless of how many headers exist
+ mask←req.Response.Headers[;1]≡¨⊂'Content-Type'
+ r←∨/mask
+ idx←mask⍳1
+ r∧←'text/html; charset=utf-8'≡⊃req.Response.Headers[idx;2]

@@ -1,0 +1,2 @@
+ r←Test_EscapeLtGt dummy
+ r←'&lt;script&gt;'≡#.Render.Escape'<script>'

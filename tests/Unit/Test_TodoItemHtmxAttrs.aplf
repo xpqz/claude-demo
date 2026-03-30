@@ -1,0 +1,8 @@
+ r←Test_TodoItemHtmxAttrs dummy;todo;html
+ todo←⎕NS '' ⋄ todo.(id title completed)←5 'Test' 0
+ html←#.Render.TodoItem todo
+ r←∨/'hx-put="/todos/5"'⍷html
+ r∧←∨/'hx-delete="/todos/5"'⍷html
+ r∧←∨/'hx-target="#todo-5"'⍷html
+ r∧←∨/'hx-swap="outerHTML"'⍷html
+ r∧←∨/'hx-swap="delete"'⍷html

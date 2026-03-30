@@ -1,0 +1,13 @@
+ r←Escape text;chars;entities;mask;i
+ ⍝ HTML-escape special characters. Ampersand must be first to avoid double-escaping.
+ :If 0=≢text
+     r←'' ⋄ :Return
+ :EndIf
+ chars←'&<>"'''
+ entities←'&amp;' '&lt;' '&gt;' '&quot;' '&#39;'
+ r←⊂¨text
+ :For i :In ⍳≢chars
+     mask←text=i⊃chars
+     (mask/r)←⊂i⊃entities
+ :EndFor
+ r←∊r

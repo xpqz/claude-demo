@@ -1,0 +1,5 @@
+ r←Test_TodoItemEscapedTitle dummy;todo;html
+ todo←⎕NS '' ⋄ todo.(id title completed)←1 '<b>bold</b>' 0
+ html←#.Render.TodoItem todo
+ r←∨/'&lt;b&gt;bold&lt;/b&gt;'⍷html
+ r∧←~∨/'<b>bold</b>'⍷html

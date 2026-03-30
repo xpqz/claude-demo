@@ -1,0 +1,2 @@
+ r←Test_EscapeAmpersand dummy
+ r←'a&amp;b'≡#.Render.Escape'a&b'

@@ -1,0 +1,14 @@
+ r←Test_TodoItemStructure dummy;todo;html
+ ⍝ Verify the HTML structure: span for toggle, button for delete, closing tags
+ todo←⎕NS '' ⋄ todo.(id title completed)←3 'Buy milk' 1
+ html←#.Render.TodoItem todo
+ ⍝ Title is inside a span with hx-put
+ r←∨/'<span hx-put="/todos/3"'⍷html
+ ⍝ Delete is a button with hx-delete
+ r∧←∨/'<button hx-delete="/todos/3"'⍷html
+ ⍝ Button contains the text x
+ r∧←∨/'>x</button>'⍷html
+ ⍝ Closing li tag present
+ r∧←∨/'</li>'⍷html
+ ⍝ Closing span tag present
+ r∧←∨/'</span>'⍷html

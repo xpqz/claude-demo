@@ -1,0 +1,2 @@
+ r←Test_EscapeMultiOccurrence dummy
+ r←'a&amp;b&amp;c'≡#.Render.Escape'a&b&c'

@@ -1,0 +1,2 @@
+ r←Test_EscapeEmpty dummy
+ r←''≡#.Render.Escape''
