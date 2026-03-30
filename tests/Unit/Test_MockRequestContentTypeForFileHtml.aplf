@@ -1,0 +1,4 @@
+ r←Test_MockRequestContentTypeForFileHtml dummy;req
+ ⍝ Verify ContentTypeForFile returns text/html with charset for .html files
+ req←⎕NEW #.Mocks.MockRequest('GET' '/')
+ r←'text/html; charset=utf-8'≡req.ContentTypeForFile'/path/to/index.html'

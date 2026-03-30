@@ -1,0 +1,4 @@
+ r←Test_MockRequestContentTypeForFileJs dummy;req
+ ⍝ Verify ContentTypeForFile returns text/javascript for .js files
+ req←⎕NEW #.Mocks.MockRequest('GET' '/')
+ r←'text/javascript'≡req.ContentTypeForFile'/app.js'

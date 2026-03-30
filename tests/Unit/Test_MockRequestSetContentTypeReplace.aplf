@@ -1,0 +1,6 @@
+ r←Test_MockRequestSetContentTypeReplace dummy;req
+ ⍝ Verify SetContentType replaces an existing Content-Type header
+ req←⎕NEW #.Mocks.MockRequest('GET' '/')
+ req.SetContentType'application/json'
+ req.SetContentType'text/css'
+ r←(1 2≡⍴req.Response.Headers)∧('text/css'≡⊃req.Response.Headers[1;2])

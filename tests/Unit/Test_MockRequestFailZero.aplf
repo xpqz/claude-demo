@@ -1,0 +1,5 @@
+ r←Test_MockRequestFailZero dummy;req
+ ⍝ Verify Fail 0 does not change Response.Status (guard behaviour)
+ req←⎕NEW #.Mocks.MockRequest('GET' '/')
+ req.Fail 0
+ r←0=req.Response.Status

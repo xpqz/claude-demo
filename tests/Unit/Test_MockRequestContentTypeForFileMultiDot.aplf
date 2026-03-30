@@ -1,0 +1,4 @@
+ r←Test_MockRequestContentTypeForFileMultiDot dummy;req
+ ⍝ Verify ContentTypeForFile uses the actual file extension for multi-dot paths
+ req←⎕NEW #.Mocks.MockRequest('GET' '/')
+ r←'application/json'≡req.ContentTypeForFile'/my.config.json'

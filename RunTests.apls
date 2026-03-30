@@ -1,0 +1,23 @@
+#!/usr/bin/dyalogscript
+
+⎕IO←1
+⎕SE.(⍎⊃2⎕FIX'/StartupSession.aplf',⍨2⎕NQ#'GetEnvironment' 'DYALOG')
+
+⍝ Import framework and app
+⎕SE.Link.Import '#' './Stark/APLSource'
+⎕SE.Link.Import '#' './APLSource'
+
+⍝ Import test infrastructure
+⎕SE.Link.Import '#.Mocks' './tests/Mocks'
+⎕SE.Link.Import '#' './tests/RunHelper.apln'
+
+⍝ Unit tests
+⎕SE.Link.Import '#.Unit' './tests/Unit'
+⎕←'=== Unit Tests ==='
+(uPass uFail)←#.RunHelper.Run #.Unit
+
+⍝ Summary
+⎕←''
+⎕←'=== Summary ==='
+⎕←'Unit: ',(⍕uPass),' passed, ',(⍕uFail),' failed'
+⎕OFF uFail>0

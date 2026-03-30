@@ -1,0 +1,5 @@
+ r←Test_MockRequestFail dummy;req
+ ⍝ Verify Fail sets Response.Status
+ req←⎕NEW #.Mocks.MockRequest('GET' '/items')
+ req.Fail 404
+ r←404=req.Response.Status

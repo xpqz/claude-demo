@@ -1,0 +1,4 @@
+ r←Test_MockRequestContentTypeForFileNoExt dummy;req
+ ⍝ Verify ContentTypeForFile returns octet-stream for files with no extension
+ req←⎕NEW #.Mocks.MockRequest('GET' '/')
+ r←'application/octet-stream'≡req.ContentTypeForFile'/Makefile'
