@@ -1,0 +1,4 @@
+ r←Test_OnErrorFnNoInfoLeak dummy;resp
+ resp←#.HttpCommand.Get(BaseURL,'/test/break')
+ r←~∨/'deliberate test error'⍷resp.Data
+ r∧←~∨/'DOMAIN ERROR'⍷resp.Data

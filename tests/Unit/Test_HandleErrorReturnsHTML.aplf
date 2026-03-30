@@ -1,0 +1,11 @@
+ r←Test_HandleErrorReturnsHTML dummy;app;req;err;result;mask
+ app←⎕NEW #.TodoApp(⊃1 ⎕NPARTS'./static/')
+ req←⎕NEW #.Mocks.MockRequest('GET' '/test/break')
+ err←⎕NS '' ⋄ err.(EN EM Message)←11 'DOMAIN ERROR' 'test'
+ result←err app.HandleError req
+ ⍝ Result is a character vector
+ r←1=⍴⍴result
+ ⍝ Content-type is text/html
+ mask←req.Response.Headers[;1]≡¨⊂'Content-Type'
+ r∧←∨/mask
+ r∧←∨/'text/html; charset=utf-8'⍷⊃req.Response.Headers[(mask⍳1);2]

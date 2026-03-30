@@ -1,0 +1,5 @@
+ r←Test_OnErrorFnReturnsHTML dummy;resp;ct
+ resp←#.HttpCommand.Get(BaseURL,'/test/break')
+ ct←resp.GetHeader'content-type'
+ r←∨/'text/html'⍷ct
+ r∧←∨/'class="error"'⍷resp.Data

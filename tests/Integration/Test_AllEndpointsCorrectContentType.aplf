@@ -1,0 +1,30 @@
+ r←Test_AllEndpointsCorrectContentType dummy;resp;ct;cmd;id
+ ⍝ GET /
+ resp←#.HttpCommand.Get(BaseURL,'/')
+ ct←resp.GetHeader'content-type'
+ r←~∨/'application/json'⍷ct
+ ⍝ GET /style.css
+ resp←#.HttpCommand.Get(BaseURL,'/style.css')
+ ct←resp.GetHeader'content-type'
+ r∧←~∨/'application/json'⍷ct
+ ⍝ GET /todos
+ resp←#.HttpCommand.Get(BaseURL,'/todos')
+ ct←resp.GetHeader'content-type'
+ r∧←~∨/'application/json'⍷ct
+ ⍝ POST /todos
+ cmd←⎕NEW #.HttpCommand
+ cmd.(Command URL ContentType)←'POST'(BaseURL,'/todos')'application/x-www-form-urlencoded'
+ cmd.Params←⎕NS '' ⋄ cmd.Params.title←'CTTest'
+ resp←cmd.Run
+ ct←resp.GetHeader'content-type'
+ r∧←~∨/'application/json'⍷ct
+ ⍝ Extract id for PUT/DELETE
+ id←⊃(resp.Data⊆⍨resp.Data∊⎕D)~⊂''
+ ⍝ PUT /todos/{id}
+ resp←#.HttpCommand.Do 'PUT'(BaseURL,'/todos/',id)
+ ct←resp.GetHeader'content-type'
+ r∧←~∨/'application/json'⍷ct
+ ⍝ DELETE /todos/{id}
+ resp←#.HttpCommand.Do 'DELETE'(BaseURL,'/todos/',id)
+ ct←resp.GetHeader'content-type'
+ r∧←~∨/'application/json'⍷ct
